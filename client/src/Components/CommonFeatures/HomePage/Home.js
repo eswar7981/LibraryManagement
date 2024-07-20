@@ -1,14 +1,15 @@
-import React from 'react'
-import SearchBook from './SearchBook'
-import BookCategories from './BookCategories'
+import React from "react";
+import SearchBook from "../Search/SearchBook";
+import BookCategories from "./BookCategories";
+import ImagesCarousel from "./ImagesCarousel";
 
 const Home = () => {
   return (
     <>
-      <SearchBook></SearchBook>
-      <BookCategories></BookCategories>
+      <ImagesCarousel></ImagesCarousel>
+      
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
