@@ -133,7 +133,10 @@ const MyBooks = () => {
                 Author
               </TableCell>
               <TableCell sx={{ color: "white" }} align="right">
-                Due
+                Due on
+              </TableCell>
+              <TableCell sx={{ color: "white" }} align="right">
+             
               </TableCell>
             </TableRow>
           </TableHead>
@@ -150,21 +153,31 @@ const MyBooks = () => {
                   <StyledTableCell align="right">
                     {book.category}
                   </StyledTableCell>
+                  
                   <StyledTableCell align="right">{book.author}</StyledTableCell>
+                 
                   <StyledTableCell align="right">
-                    {book.due==='extend due' ? (
-                      <>
-                        <Button
-                          sx={{ backgroundColor: "#1A237E", color: "white" }}
+                   12/22/22
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    
+                   {!book.returned
+&&                    <>
+                    <Button
+                          sx={{ backgroundColor: "#1A237E", color: "white",mr:4 }}
                         >
                           Extend DUE
                         </Button>
-                      </>
-                    ) : (
-                      <Button variant="contained" disabled>
-                        Due in 30 days
-                      </Button>
-                    )}
+                        <Button
+                          sx={{ backgroundColor: "#1A237E", color: "white" }}
+                        >
+                         Return
+                        </Button>
+                        </>
+                   }
+                        
+                    
+                    
                   </StyledTableCell>
                 </StyledTableRow>
               ))}

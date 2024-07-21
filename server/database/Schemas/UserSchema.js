@@ -1,28 +1,35 @@
-const mongoose=require('mongoose')
+const mongoose = require("mongoose");
 
 
-const User=mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
-        minLength:[3,"your password is too less"],
-        lowercase:true,
-        maxLength:40,
+const BorrowedBookSchema =new mongoose.Schema({
+  bookId: {
+    type: mongoose.SchemaTypes.ObjectId,
+  },
+  borrowedDate: {
+    type: mongoose.SchemaTypes.Date,
+  },
+  dueDate: {
+    type: mongoose.SchemaTypes.Date,
+  },
+});
 
-        validate:()=>`hi ${this.name} welcome`
+const User =new  mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    lowercase: true,
+    maxLength: 40,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  borrowedBooks: [BorrowedBookSchema],
+});
 
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true
-    }
-
-})
-
-
-exports.User =mongoose.model('User',User)
+module.exports= mongoose.model("User", User);

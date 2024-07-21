@@ -1,19 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const UserState = {
-  login: false,
+
+const userInitialState = {
+  login:false,
   token: "",
+  searchResult:[{title:'a book',category:'roman',author:'eswar',available:true}]
+
 };
 
 const UserSlice = createSlice({
   name: "user",
-  initialState:UserState,
+  initialState:userInitialState,
   reducers: {
     login(state) {
-      state.login = !state.login;
-      console.log(state.login);
-    },
-    logout(state) {
       state.login = !state.login;
       console.log(state.login);
     },
@@ -22,12 +21,12 @@ const UserSlice = createSlice({
     },
     userLogOut(state) {
       state.login = false;
-      state.followers = 0;
       state.token = "";
     },
-    setFollowers(state, action) {
-      state.followers = action.payload;
-    },
+    setSearchResult(state,action){
+      state.searchResult=action.payload
+    }
+
   },
 });
 

@@ -12,13 +12,53 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { userActions } from "../../Store/User";
 
 const defaultTheme = createTheme();
 
 const Login = () => {
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+  const navigate=useNavigate()
+  const [loginDetails, setLoginDetails] = React.useState({
+    email: "",
+    password: "",
+  });
+
+  const changeEmail = (e) => {
+    setLoginDetails({ ...loginDetails, ["email"]: e.target.value });
+  };
+
+  const changePassword = (e) => {
+    setLoginDetails({ ...loginDetails, ["password"]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(loginDetails);
+
+    const loginResult = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/user/authentication/login`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: loginDetails.email,
+          password: loginDetails.password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const response = await loginResult.json();
+
+    if (response.status === "success") {
+      dispatch(userActions.login())
+      dispatch(userActions.setToken(response.token));
+      navigate('/')
+    }
   };
 
   return (
@@ -52,14 +92,17 @@ const Login = () => {
               label="Email Address"
               autoComplete="email"
               autoFocus
+              onChange={changeEmail}
+              value={loginDetails.email}
             />
             <TextField
               margin="normal"
+              type="password"
               required
               fullWidth
               label="Password"
-              id="password"
-              autoComplete="current-password"
+              onChange={changePassword}
+              value={loginDetails.password}
             />
 
             <Button
@@ -67,6 +110,7 @@ const Login = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Sign In
             </Button>

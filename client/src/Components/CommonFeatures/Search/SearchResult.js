@@ -11,7 +11,7 @@ import Paper from "@mui/material/Paper";
 import { tableCellClasses } from "@mui/material/TableCell";
 import { styled } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
-import "./SearchBar.css";
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {

@@ -6,6 +6,12 @@ const User = require("./database/Schemas/UserSchema");
 const mongoose = require("mongoose");
 const mongoConfig = require("./database/config");
 
+const userAuthRoutes = require("./routes/user/authentication");
+const librarianAuthRoutes=require('./routes/librarian/authentication')
+const otherRoutes=require('./routes/visitors/routes')
+const librarianOtherRoutes=require('./routes/librarian/others')
+
+
 mongoose.connect(mongoConfig.url).then(() => {
   console.log("successfully connected to database");
 });
@@ -24,8 +30,11 @@ app.use(
 app.use(bodyParser.text({ limit: "200mb" }));
 app.use(express.json());
 
-app.use("/get", (req, res) => {
-  res.json({ status: "working" });
-});
+
+
+app.use('/user/authentication',userAuthRoutes);
+app.use('/librarian/authentication',librarianAuthRoutes)
+app.use('/librarian',librarianOtherRoutes)
+app.use('/',otherRoutes)
 
 app.listen(port);

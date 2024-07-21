@@ -13,12 +13,61 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const defaultTheme = createTheme();
 
+
+
 const AddNewBook = () => {
-  const handleSubmit = (e) => {
+  
+  const token=useSelector((state)=>state.librarian.token)
+
+  const [newBookDetails, setNewBookDetails] = React.useState({
+    title: "",
+    category: "",
+    author: "",
+    copies: "",
+  });
+
+  const titleHandler = (e) => {
+    setNewBookDetails({ ...newBookDetails, ["title"]: e.target.value });
+  };
+
+  const categoryHandler = (e) => {
+    setNewBookDetails({ ...newBookDetails, ["category"]: e.target.value });
+  };
+
+  const authorHandler = (e) => {
+    setNewBookDetails({ ...newBookDetails, ["author"]: e.target.value });
+  };
+
+  const copiesHandler = (e) => {
+    setNewBookDetails({ ...newBookDetails, ["copies"]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const loginResult = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/librarian/add-book`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          title: newBookDetails.title,
+          category: newBookDetails.category,
+          author: newBookDetails.author,
+          copies: newBookDetails.copies,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+           token:token
+        },
+      }
+    );
+
+    const response = await loginResult.json();
+
+    console.log(response.status);
   };
 
   return (
@@ -50,22 +99,40 @@ const AddNewBook = () => {
                   fullWidth
                   type="text"
                   label="Book Title"
+                  value={newBookDetails.title}
+                  onChange={titleHandler}
                   autoFocus
                 />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField required fullWidth label="Category" type="text" />
+                <TextField
+                  required
+                  fullWidth
+                  label="Category"
+                  type="text"
+                  value={newBookDetails.category}
+                  onChange={categoryHandler}
+                />
               </Grid>
               <Grid item xs={12}>
-                <TextField required fullWidth label="Author" type="text" />
+                <TextField
+                  required
+                  fullWidth
+                  label="Author"
+                  type="text"
+                  value={newBookDetails.author}
+                  onChange={authorHandler}
+                />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
                   label="No of Copies"
-                  type="text"
+                  type="number"
+                  value={newBookDetails.copies}
+                  onChange={copiesHandler}
                 />
               </Grid>
             </Grid>

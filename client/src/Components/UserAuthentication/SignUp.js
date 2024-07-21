@@ -40,23 +40,43 @@ const SignUp = () => {
     setSignUpDetails({ ...signUpDetails, ["confirmPassword"]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    console.log("huudsd");
+  const handleSubmit = async (e) => {
+   
     e.preventDefault();
-    if (signUpDetails.password !== signUpDetails.confirmPassword) {
+    if (signUpDetails.password !==signUpDetails.confirmPassword) {
+     
       setAlert({
         state: true,
         message: "password and confirm password are not same",
       });
 
-      setTimeout =
+      setTimeout
         (() => {
           setAlert({ state: false });
         },
         2000);
-    }
+    } else {
+      console.log(signUpDetails);
 
-    console.log(signUpDetails);
+      const signUpResult = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/user/authentication/sign-up`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: signUpDetails.name,
+            email: signUpDetails.email,
+            password: signUpDetails.password,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const response = await signUpResult.json();
+
+      console.log(response.status);
+    }
   };
 
   return (
@@ -75,7 +95,7 @@ const SignUp = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Librarian Sign up
+            Sign up
           </Typography>
           <Box
             component="form"
@@ -122,10 +142,7 @@ const SignUp = () => {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  error={signUpDetails.confirmPassword === ""}
-                  helperText={
-                    signUpDetails.confirmPassword === "" ? "Empty!" : "fdfd "
-                  }
+                 
                   required
                   fullWidth
                   label="Confirm Password"
