@@ -63,7 +63,11 @@ const Login = () => {
       if (response.status === "success") {
         dispatch(librarianActions.Login(true));
         dispatch(librarianActions.setToken(response.token));
-
+        setDisplayMessage({
+          status: true,
+          mode: "success",
+          message: "login successful",
+        });
         setTimeout(() => {
           navigate("/");
         }, 500);

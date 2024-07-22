@@ -70,6 +70,7 @@ const ResultTable = (props) => {
     e.preventDefault();
     setEdit(true);
 
+    
     setEditBookId(bookId);
 
     setEditBookDetails({

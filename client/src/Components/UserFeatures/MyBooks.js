@@ -27,6 +27,7 @@ const MyBooks = () => {
   });
 
   React.useEffect(() => {
+    console.log('hii')
     fetch(`${process.env.REACT_APP_BASE_URL}/user/borrow-book`, {
       method: "GET",
       headers: {
@@ -38,7 +39,7 @@ const MyBooks = () => {
         return res.json();
       })
       .then((res) => {
-       
+       console.log(res.books)
         setBooks(res.books);
       });
   }, [updatePage]);
@@ -76,7 +77,7 @@ const MyBooks = () => {
 
   const extendDueHandler = async (e, id) => {
     e.preventDefault();
-
+console.log('jjj')
     const returnBook = await fetch(
       `${process.env.REACT_APP_BASE_URL}/user/extend-due`,
       {

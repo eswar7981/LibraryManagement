@@ -16,6 +16,7 @@ exports.getBorrowedBooks = async (req, res) => {
 
   try {
     const borrowedBooks = await BorrowedBook.find({ userId: userId });
+    
     const borrowedBooksCompleteDetails = await Promise.all(
       borrowedBooks.map(async (book) => {
         const bookDetails = await Book.findOne({ _id: book.bookId });
@@ -65,15 +66,15 @@ exports.borrowBook = async (req, res) => {
 };
 
 exports.extendDue = async (req, res) => {
-  const bookId = req.body.bookId;
+  const bookId = new mongoose.mongo.ObjectId(req.body.bookId);
   const userId = new mongoose.mongo.ObjectId(req.id);
   try {
-    const book = await BorrowedBook.findOne({ bookId: bookId });
+    const book = await BorrowedBook.findOne({ bookId: bookId, userId: userId });
 
     const actualDueDate = book.dueDate;
     const newDueDate = addDays(actualDueDate, 30);
 
-    await BorrowedBook.updateOne({ bookId: bookId }, { dueDate: newDueDate });
+    await BorrowedBook.updateOne({ bookId: bookId,userId:userId }, { dueDate: newDueDate });
     res.status(200).json({ status: "success" });
   } catch (e) {
     res.status(500).json({ status: "failed" });
@@ -81,14 +82,15 @@ exports.extendDue = async (req, res) => {
 };
 
 exports.returnBook = async (req, res) => {
-  const bookId = req.body.bookId;
   const userId = new mongoose.mongo.ObjectId(req.id);
+  const bookId = new mongoose.mongo.ObjectId(req.body.bookId);
 
   try {
-    const book = await BorrowedBook.findOneAndUpdate(
-      { bookId: bookId },
+    await BorrowedBook.findOneAndUpdate(
+      { bookId: bookId, userId: userId },
       { returned: true }
     );
+
     res.status(200).json({ status: "success" });
   } catch (e) {
     res.status(500).json({ status: "failed" });

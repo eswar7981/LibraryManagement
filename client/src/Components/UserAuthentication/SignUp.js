@@ -12,14 +12,14 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useState } from "react";
-import Alert from "@mui/material/Alert"
+import Alert from "@mui/material/Alert";
 
 const defaultTheme = createTheme();
 const SignUp = () => {
   const ref = useRef();
   const [alert, setAlert] = useState({ state: false, message: "" });
-  
-  const navigate=useNavigate()
+
+  const navigate = useNavigate();
 
   const [signUpDetails, setSignUpDetails] = useState({
     name: "",
@@ -51,6 +51,7 @@ const SignUp = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('ho')
     e.preventDefault();
     if (signUpDetails.password !== signUpDetails.confirmPassword) {
       setDisplayMessage({
@@ -84,22 +85,28 @@ const SignUp = () => {
             message: "sign-up is successfull!",
           });
           setTimeout(() => {
-            navigate("/librarian/login");
+            navigate("/user/login");
           }, 500);
         } else {
           setDisplayMessage({
             status: true,
             mode: "info",
-            message: "Fill all the fields, check email format!",
+            message: "email already exists!",
           });
         }
-       
+      } else {
+        setDisplayMessage({
+          status: true,
+          mode: "info",
+          message: "Fill all the fields, check email format!",
+        });
       }
+
     }
+
     setTimeout(() => {
       setDisplayMessage({ ...displayMessage, ["status"]: false });
     }, 2000);
-
   };
 
   return (
@@ -112,7 +119,7 @@ const SignUp = () => {
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
           <CssBaseline />
-          <Box
+          <Box 
             sx={{
               marginTop: 8,
               display: "flex",
@@ -135,8 +142,8 @@ const SignUp = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
-                  required
-                  fullWidth
+                    required
+                    fullWidth
                     type="text"
                     label="Name"
                     onChange={changeName}
@@ -182,7 +189,7 @@ const SignUp = () => {
 
               <Button
                 type="submit"
-                onClick={handleSubmit}
+                
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}

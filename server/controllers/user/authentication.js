@@ -12,6 +12,7 @@ exports.signUp = async (req, res) => {
   const { name: name, email: email, password: password } = req.body;
   try {
     const user = await User.find({ email: email });
+
     if (user.length > 0) {
       res
         .status(200)

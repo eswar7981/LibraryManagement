@@ -16,7 +16,7 @@ mongoose.connect(mongoConfig.url);
 
 const port = process.env.PORT || 5000;
 
-app.use(cors({origin:`https://librarymanagement-1-3wsj.onrender.com`}));
+app.use(cors());
 app.use(bodyParser.json({ limit: "50mb", extended: true }));
 
 app.use(
