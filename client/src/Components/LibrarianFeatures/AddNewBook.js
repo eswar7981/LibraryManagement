@@ -14,14 +14,18 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Alert from "@mui/material/Alert";
 
 const defaultTheme = createTheme();
 
-
-
 const AddNewBook = () => {
-  
-  const token=useSelector((state)=>state.librarian.token)
+  const token = useSelector((state) => state.librarian.token);
+
+  const [displayMessage, setDisplayMessage] = React.useState({
+    status: false,
+    message: "",
+    mode: "",
+  });
 
   const [newBookDetails, setNewBookDetails] = React.useState({
     title: "",
@@ -48,106 +52,138 @@ const AddNewBook = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const loginResult = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/librarian/add-book`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          title: newBookDetails.title,
-          category: newBookDetails.category,
-          author: newBookDetails.author,
-          copies: newBookDetails.copies,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-           token:token
-        },
+    if (e.target.checkValidity()) {
+      const loginResult = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/librarian/add-book`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            title: newBookDetails.title,
+            category: newBookDetails.category,
+            author: newBookDetails.author,
+            copies: newBookDetails.copies,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+        }
+      );
+
+      const response = await loginResult.json();
+
+      if (response.status === "success") {
+        setDisplayMessage({
+          status: true,
+          mode: "success",
+          message: "book is added successfully !",
+        });
+        setNewBookDetails({
+          title: "",
+          category: "",
+          author: "",
+          copies: "",
+        });
+      } else {
+        setDisplayMessage({
+          status: true,
+          mode: "info",
+          message: "book is not submitted",
+        });
       }
-    );
-
-    const response = await loginResult.json();
-
-    console.log(response.status);
+    } else {
+      setDisplayMessage({
+        status: true,
+        mode: "info",
+        message: "fill all the fields",
+      });
+    }
+    setTimeout(() => {
+      setDisplayMessage({ ...displayMessage, ["status"]: false });
+    }, 2000);
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5">
-            New Book
-          </Typography>
+    <>
+      {displayMessage.status && (
+        <div style={{ position: "fixed", top: "80px" }}>
+          <Alert severity={displayMessage.mode}>{displayMessage.message}</Alert>
+        </div>
+      )}
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
           <Box
-            component="form"
-            noValidate
             onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
+            sx={{
+              marginTop: 8,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="given-name"
-                  required
-                  fullWidth
-                  type="text"
-                  label="Book Title"
-                  value={newBookDetails.title}
-                  onChange={titleHandler}
-                  autoFocus
-                />
-              </Grid>
+            <Typography component="h1" variant="h5">
+              New Book
+            </Typography>
+            <Box component="form" noValidate sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    autoComplete="given-name"
+                    required
+                    fullWidth
+                    type="text"
+                    label="Book Title"
+                    value={newBookDetails.title}
+                    onChange={titleHandler}
+                    autoFocus
+                  />
+                </Grid>
 
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="Category"
-                  type="text"
-                  value={newBookDetails.category}
-                  onChange={categoryHandler}
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Category"
+                    type="text"
+                    value={newBookDetails.category}
+                    onChange={categoryHandler}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Author"
+                    type="text"
+                    value={newBookDetails.author}
+                    onChange={authorHandler}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="No of Copies"
+                    type="number"
+                    value={newBookDetails.copies}
+                    onChange={copiesHandler}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="Author"
-                  type="text"
-                  value={newBookDetails.author}
-                  onChange={authorHandler}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="No of Copies"
-                  type="number"
-                  value={newBookDetails.copies}
-                  onChange={copiesHandler}
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              alignItems="center"
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Add
-            </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                alignItems="center"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Add
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+        </Container>
+      </ThemeProvider>
+    </>
   );
 };
 

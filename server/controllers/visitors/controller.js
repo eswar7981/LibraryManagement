@@ -14,6 +14,6 @@ exports.search = async (req, res) => {
 
     res.status(200).json({ status: "success", books: Books });
   } catch (e) {
-    res.status(400).json({ status: "failed" });
+    res.status(500).json({ status: "failed" });
   }
 };

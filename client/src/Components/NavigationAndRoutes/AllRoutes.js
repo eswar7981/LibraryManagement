@@ -6,9 +6,9 @@ import LibrarianLogin from "../LibrarianAuthentication/Login";
 import LibrarianSignUp from "../LibrarianAuthentication/SignUp";
 import SearchBook from "../../ReusableComponents/Search/SearchBook";
 import MyBooks from "../UserFeatures/MyBooks";
-import AllBooks from "../LibrarianFeatures/AllBooks";
+
 import AddNewBook from "../LibrarianFeatures/AddNewBook";
-import Home from "../CommonFeatures/HomePage/Home";
+import Home from "../CommonFeatures/Carousel/Home"
 
 const AllRoutes = () => {
   return (

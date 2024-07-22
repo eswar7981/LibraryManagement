@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Librarian =new mongoose.Schema({
+const Librarian = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -10,7 +10,6 @@ const Librarian =new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   password: {
     type: String,
@@ -18,4 +17,4 @@ const Librarian =new mongoose.Schema({
   },
 });
 
-module.exports=mongoose.model("Librarian",Librarian);
+module.exports = mongoose.model("Librarian", Librarian);

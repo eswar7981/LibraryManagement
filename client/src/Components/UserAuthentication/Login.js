@@ -15,15 +15,22 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { userActions } from "../../Store/User";
+import Alert from "@mui/material/Alert";
 
 const defaultTheme = createTheme();
 
 const Login = () => {
   const dispatch = useDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const [loginDetails, setLoginDetails] = React.useState({
     email: "",
     password: "",
+  });
+
+  const [displayMessage, setDisplayMessage] = React.useState({
+    status: false,
+    message: "",
+    mode: "",
   });
 
   const changeEmail = (e) => {
@@ -36,100 +43,138 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(loginDetails);
 
-    const loginResult = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/user/authentication/login`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email: loginDetails.email,
-          password: loginDetails.password,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+    if (e.target.checkValidity()) {
+      const loginResult = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/user/authentication/login`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: loginDetails.email,
+            password: loginDetails.password,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const response = await loginResult.json();
+
+      if (response.status === "failed") {
+        if (response.message === "email does not exist") {
+          setDisplayMessage({
+            status: true,
+            mode: "info",
+            message: "Email does not exist",
+          });
+        } else {
+          setDisplayMessage({
+            status: true,
+            mode: "info",
+            message: "Incorrect password",
+          });
+        }
+      } else {
+        setDisplayMessage({
+          status: true,
+          mode: "success",
+          message: "login successful",
+        });
+        dispatch(userActions.login());
+        dispatch(userActions.setToken(response.token));
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
       }
-    );
-
-    const response = await loginResult.json();
-
-    if (response.status === "success") {
-      dispatch(userActions.login())
-      dispatch(userActions.setToken(response.token));
-      navigate('/')
+    } else {
+      setDisplayMessage({
+        status: true,
+        mode: "info",
+        message: "Fill all the fields",
+      });
     }
+
+    setTimeout(() => {
+      setDisplayMessage({ ...displayMessage, ["status"]: false });
+    }, 2000);
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
+    <>
+      {displayMessage.status && (
+        <div style={{ position: "fixed", top: "80px" }}>
+          <Alert severity={displayMessage.mode}>{displayMessage.message}</Alert>
+        </div>
+      )}
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
           <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
+            sx={{
+              marginTop: 8,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Email Address"
-              autoComplete="email"
-              autoFocus
-              onChange={changeEmail}
-              value={loginDetails.email}
-            />
-            <TextField
-              margin="normal"
-              type="password"
-              required
-              fullWidth
-              label="Password"
-              onChange={changePassword}
-              value={loginDetails.password}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
+            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              noValidate
+              sx={{ mt: 1 }}
             >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item>
-                <NavLink to="/user/sign-up" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </NavLink>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                label="Email Address"
+                autoComplete="email"
+                autoFocus
+                onChange={changeEmail}
+                value={loginDetails.email}
+              />
+              <TextField
+                margin="normal"
+                type="password"
+                required
+                fullWidth
+                label="Password"
+                onChange={changePassword}
+                value={loginDetails.password}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign In
+              </Button>
+              <Grid container>
+                <Grid item>
+                  <NavLink to="/user/sign-up" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </NavLink>
+                </Grid>
+                <Grid item>
+                  <NavLink to="/librarian/login" variant="body2">
+                    {"Are you a Librarian ? Login"}
+                  </NavLink>
+                </Grid>
               </Grid>
-              <Grid item>
-                <NavLink to="/librarian/login" variant="body2">
-                  {"Are you a Librarian ? Login"}
-                </NavLink>
-              </Grid>
-            </Grid>
+            </Box>
           </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+        </Container>
+      </ThemeProvider>
+    </>
   );
 };
 

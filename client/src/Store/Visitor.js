@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const VisitorInitialState = {
-  searchResult: [{title:'a book',category:'roman',author:'eswar'}]
+  searchResult: []
 ,
 };
 

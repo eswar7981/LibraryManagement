@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import BookCategories from "../../Components/CommonFeatures/HomePage/BookCategories";
 import { createTheme, ThemeProvider } from "@mui/material";
 import SearchBar from "./SearchBar";
 import ResultTable from "./ResultTable";
@@ -17,6 +16,11 @@ const SearchBook = () => {
   const visitorSearchResult = useSelector(
     (state) => state.visitor.searchResult
   );
+
+  const refresh = (e) => {
+    e.preventDefault();
+    console.log("refresh");
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -38,7 +42,11 @@ const SearchBook = () => {
       {!user && !librarian && (
         <>
           <SearchBar mode="visitor"></SearchBar>
-          <ResultTable mode="visitor" data={visitorSearchResult}></ResultTable>
+          <ResultTable
+            refresh={refresh}
+            mode="visitor"
+            data={visitorSearchResult}
+          ></ResultTable>
         </>
       )}
     </ThemeProvider>

@@ -1,18 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const libararianInitialState = {
-  login:false,
+  login: false,
   token: "",
-  searchResult:[{title:'a book',category:'roman',author:'eswar',copies:34}],
-  refresh:false
+  searchResult: [],
+  refresh: false,
 };
 
 const LibrarianSlice = createSlice({
   name: "librarian",
   initialState: libararianInitialState,
   reducers: {
-    login(state) {
-      state.login = !state.login;   
+    Login(state,action) {
+    
+      state.login = action.payload
     },
     setToken(state, action) {
       state.token = action.payload;
@@ -21,16 +22,15 @@ const LibrarianSlice = createSlice({
       state.login = false;
       state.token = "";
     },
-    setSearchResult(state,action){
-      state.searchResult=action.payload
-    }
-    ,
-    setRefresh(state){
-      state.refresh=true
+    setSearchResult(state, action) {
+      state.searchResult = action.payload;
     },
-    setRefreshDefault(state){
-      state.refresh=false
-    }
+    setRefresh(state) {
+      state.refresh = true;
+    },
+    setRefreshDefault(state) {
+      state.refresh = false;
+    },
   },
 });
 

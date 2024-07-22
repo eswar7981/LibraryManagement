@@ -1,10 +1,12 @@
 import * as React from "react";
+import ClearIcon from "@mui/icons-material/Clear";
 import Table from "@mui/material/Table";
 import Button from "@mui/material/Button";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import Alert from "@mui/material/Alert";
 import TableRow from "@mui/material/TableRow";
 import { Container, TextField, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
@@ -35,13 +37,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const ResultTable = (props) => {
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const [displayMessage, setDisplayMessage] = React.useState({
+    status: false,
+    message: "",
+    mode: "",
+  });
 
   const dispatch = useDispatch();
 
   const token = useSelector((state) => state.librarian.token);
+
+  const userToken = useSelector((state) => state.user.token);
 
   const [edit, setEdit] = React.useState(false);
 
@@ -52,14 +58,20 @@ const ResultTable = (props) => {
     copies: "",
   });
 
+  const [editBookId, setEditBookId] = React.useState();
+
+  const [borrowed, setBorrowed] = React.useState(false);
+
   const [page, setPage] = React.useState(0);
 
   const [isHovered, setIsHovered] = React.useState(false);
 
-  const editHandler = async (e, title, category, author, copies) => {
+  const editHandler = async (e, title, category, author, copies, bookId) => {
     e.preventDefault();
     setEdit(true);
-    console.log(token);
+
+    setEditBookId(bookId);
+
     setEditBookDetails({
       title: title,
       category: category,
@@ -80,7 +92,7 @@ const ResultTable = (props) => {
           category: editBookDetails.category,
           author: editBookDetails.author,
           copies: editBookDetails.copies,
-          id: id,
+          bookId: id,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -92,8 +104,21 @@ const ResultTable = (props) => {
     const response = await editBook.json();
 
     if (response.status === "success") {
+      setDisplayMessage({
+        status: true,
+        mode: "success",
+        message: "edited book is live now",
+      });
       dispatch(librarianActions.setRefresh());
+    } else {
+      setDisplayMessage({
+        status: true,
+        mode: "info",
+        message: "book is already borrowed",
+      });
+
     }
+    setIsHovered(!isHovered);
 
     setEditBookDetails({
       title: "",
@@ -102,12 +127,60 @@ const ResultTable = (props) => {
       copies: "",
     });
 
+    setTimeout(() => {
+      setDisplayMessage({ ...displayMessage, ["status"]: false });
+    }, 2000);
+    setEdit(false);
+    setEditBookId()
+  };
+
+  const deleteHandler = async (e, id) => {
+    e.preventDefault();
+
+    const deleteBook = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/librarian/delete-book?bookId=${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+        },
+      }
+    );
+
+    const response = await deleteBook.json();
+
+    if (response.status === "success") {
+      setDisplayMessage({
+        status: true,
+        mode: "success",
+        message: "book is removed from library",
+      });
+      dispatch(librarianActions.setRefresh());
+    } else {
+      setDisplayMessage({
+        status: true,
+        mode: "info",
+        message: "book removal failed",
+      });
+    }
+    setIsHovered(!isHovered);
+
+    setEditBookDetails({
+      title: "",
+      category: "",
+      author: "",
+      copies: "",
+    });
+    setTimeout(() => {
+      setDisplayMessage({ ...displayMessage, ["status"]: false });
+    }, 2000);
     setEdit(false);
   };
 
-  const deleteHandler = (e, id) => {
+  const cancelBorrowProcess = (e) => {
     e.preventDefault();
-    console.log("sdsd");
+    setIsHovered(false);
   };
 
   const editTitleHandler = (e) => {
@@ -134,8 +207,54 @@ const ResultTable = (props) => {
     setIsHovered(!isHovered);
   };
 
+  const borrowPeriodHandler = async (e, period, id) => {
+    e.preventDefault();
+
+    const borrowBook = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/user/borrow-book`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          bookId: id,
+          borrowPeriod: period,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          token: userToken,
+        },
+      }
+    );
+
+    const response = await borrowBook.json();
+
+    if (response.status === "success") {
+      setDisplayMessage({
+        status: true,
+        mode: "success",
+        message: "book is successfully borrowed",
+      });
+    } else {
+      setDisplayMessage({
+        status: true,
+        mode: "info",
+        message: "book is already borrowed",
+      });
+    }
+    setIsHovered(!isHovered);
+
+    setTimeout(() => {
+      setDisplayMessage({ ...displayMessage, ["status"]: false });
+    }, 2000);
+  };
+
   return (
     <>
+      {displayMessage.status && (
+        <div style={{ position: "fixed", top: "80px" }}>
+          <Alert severity="info">{displayMessage.message}</Alert>
+        </div>
+      )}
+
       <Typography
         sx={{ mt: "20px" }}
         align="center"
@@ -168,12 +287,17 @@ const ResultTable = (props) => {
                   Copies
                 </TableCell>
               )}
-              {props.mode === "user" ||
-                (props.mode === "visitor" && (
-                  <TableCell sx={{ color: "white" }} align="center">
-                    Availability
-                  </TableCell>
-                ))}
+              {props.mode === "user" && (
+                <TableCell sx={{ color: "white" }} align="center">
+                  Availability
+                </TableCell>
+              )}
+
+              {props.mode === "visitor" && (
+                <TableCell sx={{ color: "white" }} align="center">
+                  Availability
+                </TableCell>
+              )}
 
               {props.mode === "librarian" && (
                 <TableCell sx={{ color: "white" }} align="center">
@@ -183,10 +307,59 @@ const ResultTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.data &&
+            {editBookId && (
+              <>
+                {" "}
+                <StyledTableCell component="th" scope="row">
+                  Edit mode
+                </StyledTableCell>
+                <StyledTableCell component="th" scope="row">
+                  <TextField
+                    size="small"
+                    value={editBookDetails.title}
+                    onChange={editTitleHandler}
+                    type="text"
+                  ></TextField>
+                </StyledTableCell>
+                <StyledTableCell component="th" scope="row">
+                  <TextField
+                    size="small"
+                    value={editBookDetails.category}
+                    onChange={editCategoryHandler}
+                  ></TextField>
+                </StyledTableCell>
+                <StyledTableCell align="left">
+                  <TextField
+                    size="small"
+                    value={editBookDetails.author}
+                    onChange={editAuthorHandler}
+                  ></TextField>
+                </StyledTableCell>
+                <StyledTableCell align="center">
+                  {" "}
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={editBookDetails.copies}
+                    onChange={editCopiesHandler}
+                  ></TextField>
+                </StyledTableCell>{" "}
+                <StyledTableCell>
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    sx={{ backgroundColor: "#1A237E", color: "white" }}
+                    onClick={(e) => submitEditHandler(e, editBookId)}
+                  >
+                    Submit
+                  </Button>
+                </StyledTableCell>
+              </>
+            )}
+            {!editBookId &&
+              props.data &&
               props.data.map((book, index) => (
                 <StyledTableRow key={index}>
-                  {props.mode === "visitor" && <></>}
                   {props.mode === "librarian" && edit ? (
                     <>
                       {" "}
@@ -264,106 +437,158 @@ const ResultTable = (props) => {
                   )}
 
                   {props.mode === "user" && (
-                    <StyledTableCell>
-                      {props.mode === "user" && book.available ? (
+                    <StyledTableCell align="center">
+                      {props.mode === "user" && (
                         <>
-                          <Button
-                            onMouseOver={hoverHandler}
-                            sx={{ backgroundColor: "#1A237E", color: "white" }}
-                          >
-                            Borrow
-                          </Button>
+                          {!isHovered && (
+                            <Button
+                              variant="contained"
+                              onClick={hoverHandler}
+                              sx={{
+                                backgroundColor: "#1A237E",
+                                color: "white",
+                              }}
+                            >
+                              Borrow
+                            </Button>
+                          )}
                           {isHovered && (
                             <div className="flex">
                               <Button
+                                variant="contained"
                                 sx={{
                                   backgroundColor: "#1A237E",
                                   color: "white",
+                                  mr: 2,
                                 }}
+                                onClick={(e) =>
+                                  borrowPeriodHandler(e, 30, book._id)
+                                }
                               >
                                 30 days
                               </Button>
                               <Button
+                                variant="contained"
                                 sx={{
                                   backgroundColor: "#1A237E",
                                   color: "white",
+                                  mr: 2,
                                 }}
+                                onClick={(e) =>
+                                  borrowPeriodHandler(e, 60, book._id)
+                                }
                               >
                                 60 days
                               </Button>
                               <Button
+                                variant="contained"
                                 sx={{
                                   backgroundColor: "#1A237E",
                                   color: "white",
+                                  mr: 2,
                                 }}
+                                onClick={(e) =>
+                                  borrowPeriodHandler(e, 90, book._id)
+                                }
                               >
                                 90 days
+                              </Button>
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  backgroundColor: "red",
+                                  color: "white",
+                                }}
+                                onClick={(e) => cancelBorrowProcess(e)}
+                              >
+                                <ClearIcon></ClearIcon>
                               </Button>
                             </div>
                           )}
                         </>
-                      ) : (
-                        <Button variant="contained" disabled>
-                          may available in 10 days
-                        </Button>
                       )}
                     </StyledTableCell>
                   )}
-                  <StyledTableCell align="center">
-                    {props.mode === "librarian" && (
-                      <div style={{ display: "flex", alignContent: "center" }}>
-                        {!edit ? (
-                          <Button
-                            sx={{
-                              backgroundColor: "#1A237E",
-                              color: "white",
-                            }}
-                            onClick={(e) =>
-                              editHandler(
-                                e,
-                                book.title,
-                                book.category,
-                                book.author,
-                                book.copies
-                              )
-                            }
-                          >
-                            Edit
-                          </Button>
-                        ) : (
-                          <Button
-                            sx={{
-                              backgroundColor: "#1A237E",
-                              color: "white",
-                              mr: 3,
-                            }}
-                            onClick={(e) => submitEditHandler(e,book._id)}
-                          >
-                            Submit
-                          </Button>
-                        )}
-                        {!edit && (
-                          <Button
-                            sx={{ backgroundColor: "#1A237E", color: "white" }}
-                            onClick={(e) => deleteHandler(e, 4)}
-                          >
-                            Delete
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </StyledTableCell>
+
+                  {book._id !== editBookId && edit && (
+                    <StyledTableCell align="center">
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#1A237E",
+                          color: "white",
+                          mr: 2,
+                        }}
+                        onClick={(e) =>
+                          editHandler(
+                            e,
+                            book.title,
+                            book.category,
+                            book.author,
+                            book.copies,
+                            book._id
+                          )
+                        }
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        sx={{ backgroundColor: "#1A237E", color: "white" }}
+                        onClick={(e) => deleteHandler(e, book._id)}
+                        variant="contained"
+                      >
+                        Delete
+                      </Button>
+                    </StyledTableCell>
+                  )}
+
+                  {props.mode === "librarian" && !edit && !editBookId && (
+                    <StyledTableCell align="center">
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#1A237E",
+                          color: "white",
+                          mr: 2,
+                        }}
+                        onClick={(e) =>
+                          editHandler(
+                            e,
+                            book.title,
+                            book.category,
+                            book.author,
+                            book.copies,
+                            book._id
+                          )
+                        }
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        sx={{ backgroundColor: "#1A237E", color: "white" }}
+                        onClick={(e) => deleteHandler(e, book._id)}
+                        variant="contained"
+                      >
+                        Delete
+                      </Button>
+                    </StyledTableCell>
+                  )}
+                  {editBookId && book._id === editBookId && (
+                    <StyledTableCell>
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        sx={{ backgroundColor: "#1A237E", color: "white" }}
+                        onClick={(e) => submitEditHandler(e, book._id)}
+                      >
+                        Submit
+                      </Button>
+                    </StyledTableCell>
+                  )}
                 </StyledTableRow>
               ))}
           </TableBody>
         </Table>
-
-        <TablePagination
-          rowsPerPage="10"
-          component="div"
-          page={page}
-          onPageChange={handleChangePage}
-        />
       </Container>
     </>
   );

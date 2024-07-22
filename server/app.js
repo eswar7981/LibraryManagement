@@ -7,14 +7,12 @@ const mongoose = require("mongoose");
 const mongoConfig = require("./database/config");
 
 const userAuthRoutes = require("./routes/user/authentication");
-const librarianAuthRoutes=require('./routes/librarian/authentication')
-const otherRoutes=require('./routes/visitors/routes')
-const librarianOtherRoutes=require('./routes/librarian/others')
+const librarianAuthRoutes = require("./routes/librarian/authentication");
+const otherRoutes = require("./routes/visitors/routes");
+const librarianOtherRoutes = require("./routes/librarian/others");
+const userOtherRoutes = require("./routes/user/others");
 
-
-mongoose.connect(mongoConfig.url).then(() => {
-  console.log("successfully connected to database");
-});
+mongoose.connect(mongoConfig.url);
 
 const port = process.env.PORT || 5000;
 
@@ -30,11 +28,10 @@ app.use(
 app.use(bodyParser.text({ limit: "200mb" }));
 app.use(express.json());
 
-
-
-app.use('/user/authentication',userAuthRoutes);
-app.use('/librarian/authentication',librarianAuthRoutes)
-app.use('/librarian',librarianOtherRoutes)
-app.use('/',otherRoutes)
+app.use("/user/authentication", userAuthRoutes);
+app.use("/librarian/authentication", librarianAuthRoutes);
+app.use("/librarian", librarianOtherRoutes);
+app.use("/user", userOtherRoutes);
+app.use("/", otherRoutes);
 
 app.listen(port);

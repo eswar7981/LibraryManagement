@@ -10,13 +10,11 @@ const generateToken = (id) => {
 
 exports.signUp = async (req, res) => {
   const { name: name, email: email, password: password } = req.body;
-
   try {
-    const librarian = await Librarian.findOne({ email: email });
-
-    if (librarian) {
+    const librarians = await Librarian.find({ email: email });
+    if (librarians.length > 0) {
       res
-        .status(400)
+        .status(200)
         .json({ status: "failed", message: "email is already registered" });
     } else {
       bcrypt.hash(password, 10, async (err, hash) => {
@@ -25,12 +23,13 @@ exports.signUp = async (req, res) => {
           email: email,
           password: hash,
         });
-        const task = await newAccount.save();
-        console.log(task);
+        newAccount.save();
+
+        res.status(200).json({ status: "success" });
       });
     }
   } catch (e) {
-    console.log(e.message);
+    res.status(500).json({ status: "failed" });
   }
 };
 
@@ -38,21 +37,22 @@ exports.login = async (req, res) => {
   const { email: email, password: password } = req.body;
 
   try {
-    const librarian = await Librarian.findOne({ email: email });
-    if (librarian === undefined) {
-      res.status(404).json({ status: "user does not exist" });
+    const librarian = await Librarian.find({ email: email });
+    if (librarian.length === 0) {
+      res
+        .status(200)
+        .json({ status: "failed", message: "email does not exist" });
     } else {
-      bcrypt.compare(password, librarian.password, (err, status) => {
+      bcrypt.compare(password, librarian[0].password, (err, status) => {
         if (status === true) {
-          const token = generateToken(librarian._id);
-         
+          const token = generateToken(librarian[0]._id);
           res.status(200).json({ status: "success", token: token });
         } else {
-          res.status(400).json({ status: "wrong password" });
+          res.status(200).json({ status: "failed", message: "wrong password" });
         }
       });
     }
   } catch (e) {
-    console.log(e.message);
+    res.status(500).json({ status: "failed" });
   }
 };

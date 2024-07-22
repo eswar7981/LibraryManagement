@@ -1,7 +1,6 @@
 import logo from "./logo.svg";
 import "./App.css";
 
-import Footer from "./Components/NavigationAndRoutes/Footer";
 import NavigationBar from "./Components/NavigationAndRoutes/NavigationBar";
 import AllRoutes from "./Components/NavigationAndRoutes/AllRoutes";
 
@@ -48,9 +47,6 @@ function App() {
         <main>
           <AllRoutes></AllRoutes>
         </main>
-        <footer>
-          <Footer></Footer>
-        </footer>
       </ThemeProvider>
     </>
   );

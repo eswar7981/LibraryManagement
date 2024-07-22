@@ -4,7 +4,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const userInitialState = {
   login:false,
   token: "",
-  searchResult:[{title:'a book',category:'roman',author:'eswar',available:true}]
+  searchResult:[],
+ 
 
 };
 
@@ -14,7 +15,7 @@ const UserSlice = createSlice({
   reducers: {
     login(state) {
       state.login = !state.login;
-      console.log(state.login);
+
     },
     setToken(state, action) {
       state.token = action.payload;
@@ -25,7 +26,8 @@ const UserSlice = createSlice({
     },
     setSearchResult(state,action){
       state.searchResult=action.payload
-    }
+    },
+    
 
   },
 });
