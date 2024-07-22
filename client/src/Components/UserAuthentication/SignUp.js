@@ -121,7 +121,7 @@ const SignUp = () => {
           <CssBaseline />
           <Box 
             sx={{
-              marginTop: 8,
+              marginTop: 4,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -199,13 +199,14 @@ const SignUp = () => {
 
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <NavLink to="/user/login" variant="body2">
-                    Already have an account? Sign in
+                <NavLink to="/librarian/login" variant="body2">
+                    Already you a Librarian? Sign in as Librarian
                   </NavLink>
+                 
                 </Grid>
                 <Grid item>
-                  <NavLink to="/librarian/login" variant="body2">
-                    Already you a Librarian? Sign in as Librarian
+                <NavLink to="/user/login" variant="body2">
+                    Already have an account? Sign in
                   </NavLink>
                 </Grid>
               </Grid>

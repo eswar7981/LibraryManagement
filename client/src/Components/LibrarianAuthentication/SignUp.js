@@ -114,7 +114,7 @@ const SignUp = () => {
       )}
       <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="xs">
-          <CssBaseline />
+         
           <Box
             onSubmit={handleSubmit}
             sx={{
